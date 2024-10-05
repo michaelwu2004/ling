@@ -1,4 +1,4 @@
 export type TDefinition = {
-  type: 'n' | 'v' | 'a' | 'adv',
-  content: string
-}
+  type: "n" | "v" | "a" | "adv";
+  content: string;
+};

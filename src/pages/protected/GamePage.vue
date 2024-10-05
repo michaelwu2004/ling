@@ -17,6 +17,14 @@
               Current Word: {{ currentWord }}
             </h3>
 
+            <div>Definition: {{ currentDefinition[0] }}</div>
+
+            <div>
+              <p v-for="(word, index) in currentGoodWords" :key="index">
+                Good Word {{ index + 1 }}: {{ word }}
+              </p>
+            </div>
+
             <!-- Display the target word -->
             <p class="mt-2">Target Word: {{ targetWord }}</p>
 
@@ -83,17 +91,23 @@ import {
   CardTitle,
 } from "@/shared/shadcn/components/ui/card";
 import CardContent from "@/shared/shadcn/components/ui/card/CardContent.vue";
+import { syllable } from "syllable";
+import { fetchWordDetails, findValidStartingWord } from "@/shared/api/words";
 
 // Game state variables
 const currentWord = ref("");
 const targetWord = ref("");
 const movesRemaining = ref(5); // Limit moves to 5
 const gameWon = ref(false);
+const currentDefinition = ref<string[]>([]);
 const currentSynonyms = ref<string[]>([]);
 const currentAntonyms = ref<string[]>([]);
+const currentGoodWords = ref<string[]>([]);
 
 interface Node {
   word: string;
+  definitions: string[];
+  goodWords: string[];
   synonyms: string[];
   antonyms: string[];
 }
@@ -106,71 +120,67 @@ interface Graph {
 const graph: Graph = {};
 const leafNodes: string[] = [];
 
-/**
- * Fetch a random word from the Random Word API
- * @returns String object from Random Word API response
- */
-async function fetchRandomWord() {
-  try {
-    const response = await fetch("https://random-word-api.herokuapp.com/word");
-    if (!response.ok) {
-      throw new Error(`Error fetching random word: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log("Checking " + data[0]);
-    return data[0];
-  } catch (error) {
-    console.error("Error fetching random word:", error);
-    return "";
-  }
-}
-
-/**
- * Fetches synonyms and antonyms for a given word.
- * @param word The word to find synonyms and antonyms for.
- * @returns Object with synonyms and antonyms arrays.
- */
-async function fetchWordDetails(word: string) {
-  try {
-    const synonymParams = new URLSearchParams({ rel_syn: word, max: "5" });
-    const antonymParams = new URLSearchParams({ rel_ant: word, max: "5" });
-
-    const [synonymResponse, antonymResponse] = await Promise.all([
-      fetch(`https://api.datamuse.com/words?${synonymParams.toString()}`),
-      fetch(`https://api.datamuse.com/words?${antonymParams.toString()}`),
-    ]);
-
-    const synonymsData = await synonymResponse.json();
-    const antonymsData = await antonymResponse.json();
-
-    return {
-      synonyms: synonymsData.map((item: any) => item.word),
-      antonyms: antonymsData.map((item: any) => item.word),
-    };
-  } catch (error) {
-    console.error("Error fetching word details:", error);
-    return { synonyms: [], antonyms: [] };
-  }
-}
-
 async function constructGraph(word: string, depth: number) {
   try {
     // Return if max depth is reached or word already in the graph
     if (graph[word]) return;
-    if (depth === 0) {
-      graph[word] = { word: word, antonyms: [], synonyms: [] };
-      return;
-    }
     // Fetch synonyms and antonyms
-    const { synonyms, antonyms } = await fetchWordDetails(word);
+    const { synonyms, antonyms, definitions } = await fetchWordDetails(word);
+    const goodWords = [];
+
+    // Find "good" words to sample from definition
+    const syllableCounts: [number, string][] = [];
+
+    // Process each definition
+    for (const definition of definitions) {
+      // Slice everything after the first occurrence of '\t' only
+      const cleanedDefinition = definition.split("\t")[1] || definition;
+
+      // Split cleaned definition into individual words by spaces
+      const words = cleanedDefinition.split(/\s+/);
+
+      for (const word of words) {
+        if (word.length > 1) {
+          // Exclude single-character words if needed
+          const syllables = syllable(word.toLowerCase()); // Convert word to lowercase
+          syllableCounts.push([syllables, word]);
+        }
+      }
+    }
+
+    // Sort by syllable count (ascending)
+    syllableCounts.sort((a, b) => b[0] - a[0]);
+
+    // Push the first 3 "good" words based on sorted syllables
+    for (let i = 0; i < Math.min(3, syllableCounts.length); i++) {
+      goodWords.push(syllableCounts[i][1]); // Push the word (second element of tuple)
+    }
 
     // Add the word to the graph
     graph[word] = {
       word: word,
+      goodWords: goodWords,
+      definitions: definitions || [],
       antonyms: antonyms || [],
       synonyms: synonyms || [],
     };
+
+    if (depth === 0) {
+      graph[word] = {
+        word: word,
+        definitions: definitions,
+        goodWords: [],
+        antonyms: [],
+        synonyms: [],
+      };
+      return;
+    }
+
+    for (const goodWord of goodWords) {
+      if (!(goodWord in graph)) {
+        await constructGraph(goodWord, depth - 1);
+      }
+    }
 
     // Recursively add antonyms and synonyms to the graph
     for (const antonym of antonyms) {
@@ -188,33 +198,12 @@ async function constructGraph(word: string, depth: number) {
 }
 
 /**
- * Finds a random word that has at least 2 synonyms and 2 antonyms.
- * @returns A word that satisfies the condition.
- */
-async function findValidStartingWord(): Promise<string> {
-  let validWordFound = false;
-  let randomWord = "";
-
-  while (!validWordFound) {
-    randomWord = await fetchRandomWord();
-    const { synonyms, antonyms } = await fetchWordDetails(randomWord);
-
-    // Check if the word has at least 2 synonyms and 2 antonyms
-    if (synonyms.length + antonyms.length >= 2) {
-      validWordFound = true;
-    }
-  }
-
-  return randomWord;
-}
-
-/**
  * Fills up the leafNodes array with all the leaf nodes generated
  * from the start word
  * @param word The start word to find the leaf nodes of
  * @param visited A set tracking the words we have seen already
  */
-function retrieveLeafNodes(word: string, visited: Set<string>) {
+function retrieveLeafNodes(word: string, visited: Set<string>, type: string) {
   // Mark the current word as visited
   if (visited.has(word)) {
     return;
@@ -226,7 +215,9 @@ function retrieveLeafNodes(word: string, visited: Set<string>) {
   // console.log(word);
 
   if (!currNode) {
-    console.error(`Node for word "${word}" does not exist in the graph`);
+    console.error(
+      `Node for word "${word}" "${type}" does not exist in the graph`
+    );
     return;
   }
 
@@ -237,13 +228,19 @@ function retrieveLeafNodes(word: string, visited: Set<string>) {
 
   for (const antonym of currNode.antonyms) {
     if (!visited.has(antonym)) {
-      retrieveLeafNodes(antonym, visited);
+      retrieveLeafNodes(antonym, visited, "antonym");
     }
   }
 
   for (const synonym of currNode.synonyms) {
     if (!visited.has(synonym)) {
-      retrieveLeafNodes(synonym, visited);
+      retrieveLeafNodes(synonym, visited, "synonym");
+    }
+  }
+
+  for (const goodWord of currNode.goodWords) {
+    if (!visited.has(goodWord)) {
+      retrieveLeafNodes(goodWord, visited, "goodWord");
     }
   }
 }
@@ -251,11 +248,14 @@ function retrieveLeafNodes(word: string, visited: Set<string>) {
 // Initialize the game with source word and target leaf node word
 async function initializeGame() {
   currentWord.value = await findValidStartingWord(); // Find a valid starting word with at least 2 synonyms and 2 antonyms
-  await constructGraph(currentWord.value, 5);
+  await constructGraph(currentWord.value, 4);
+  currentDefinition.value = graph[currentWord.value].definitions;
+  console.log(currentDefinition.value);
   const visited = new Set<string>();
-  retrieveLeafNodes(currentWord.value, visited);
+  retrieveLeafNodes(currentWord.value, visited, "curr");
   const randomIndex = Math.floor(Math.random() * leafNodes.length);
   targetWord.value = leafNodes[randomIndex];
+  currentGoodWords.value = graph[currentWord.value].goodWords;
   currentAntonyms.value = graph[currentWord.value].antonyms;
   currentSynonyms.value = graph[currentWord.value].synonyms;
   console.log(currentAntonyms, currentSynonyms);
@@ -273,6 +273,8 @@ async function makeMove(newWord: string) {
     } else {
       // Update synonyms and antonyms for the new word
       const { synonyms, antonyms } = await fetchWordDetails(currentWord.value);
+      currentDefinition.value = graph[currentWord.value].definitions;
+      currentGoodWords.value = graph[currentWord.value].goodWords;
       currentSynonyms.value = synonyms;
       currentAntonyms.value = antonyms;
     }
