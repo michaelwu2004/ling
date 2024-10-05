@@ -17,3 +17,15 @@ export const createUserWithEmail = async (username: string, email: string, user:
 
   if (error) throw error;
 }
+
+export const getUserWithId = async (userId: string) => {
+  const { data, error } = await supabase.from('users').select('email, username').eq('id', userId).maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error("No user data found.");
+
+  return {
+    email: data.email,
+    username: data.username
+  }
+}

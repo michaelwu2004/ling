@@ -47,6 +47,7 @@ import { LoaderCircle } from 'lucide-vue-next';
 import { useAuthStore } from '@/app/store/auth';
 import { signInWithEmailAndPasword } from '@/shared/api/supabase/auth/auth';
 import router from '@/app/router';
+import { getUserWithId } from '@/shared/api/supabase/auth/user';
 
 const authStore = useAuthStore();
 
@@ -65,6 +66,7 @@ async function onSubmit(event: Event) {
     if (session) {
       authStore.setSession(session);
       authStore.setUser(user);
+      authStore.setAdditionalUserInfo(await getUserWithId(user.id));
 
       router.push('/');
     }

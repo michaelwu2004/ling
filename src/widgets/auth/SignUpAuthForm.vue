@@ -97,6 +97,8 @@ async function onSubmit(event: Event) {
     
     authStore.setSession(session);
     authStore.setUser(user);
+    authStore.setAdditionalUserInfo({ email: email.value, username: username.value });
+    
     router.push('/');
   } catch (e: any) {
     console.log(e);

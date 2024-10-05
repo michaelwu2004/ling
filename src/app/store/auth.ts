@@ -1,15 +1,18 @@
+import { getUserWithId } from "@/shared/api/supabase/auth/user";
 import { supabase } from "@/shared/api/supabase/supabase";
+import { IAdditionalUserInfo } from "@/shared/types/user";
 import { Session, User } from "@supabase/supabase-js";
 import { defineStore } from "pinia";
 
 interface IAuthState {
   session: Session | undefined | null,
-  user: User | undefined | null
+  user: User | undefined | null,
+  additional: IAdditionalUserInfo | undefined | null
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): IAuthState => {
-    return { session: null, user: undefined }
+    return { session: null, user: undefined, additional: null }
   },
   actions: {
     setUser(user: User | undefined | null = undefined) {
@@ -17,6 +20,9 @@ export const useAuthStore = defineStore('auth', {
     },
     setSession(session: Session | undefined | null = null) {
       this.session = session;
+    },
+    setAdditionalUserInfo(info: IAdditionalUserInfo | undefined | null) {
+      this.additional = info;
     },
     async checkAuth() {
       try {
@@ -27,6 +33,8 @@ export const useAuthStore = defineStore('auth', {
 
         this.session = data.session;
         this.user = data.session.user;
+        
+        this.additional  = await getUserWithId(this.user.id);
       } catch (e) {}
     },
     clearUser() {
@@ -40,6 +48,9 @@ export const useAuthStore = defineStore('auth', {
     },
     getSession(state) {
       return state.session;
+    },
+    getAdditionalUserInfo(state) {
+      return state.additional;
     },
     isLoggedIn(state) {
       return !!state.user

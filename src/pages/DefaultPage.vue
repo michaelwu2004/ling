@@ -1,5 +1,33 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100 p-8">
+  <Navbar>
+  </Navbar>
+
+  <div class="w-full h-full space-y-4 px-5 mt-5">
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Card Title</CardTitle>
+          <CardDescription>Card Description</CardDescription>
+        </CardHeader>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Card Title</CardTitle>
+          <CardDescription>Card Description</CardDescription>
+        </CardHeader>
+      </Card>
+    </div>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <Card class="col-span-4">
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardContent class="pl-2">
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+  <!-- <div class="flex items-center justify-center min-h-screen bg-gray-100 p-8">
     <div class="bg-white p-12 rounded-lg shadow-lg max-w-md w-full">
       <h1 class="text-2xl font-bold mb-6 text-center">
         Welcome to the Game Dashboard
@@ -17,13 +45,18 @@
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
 import router from "@/app/router";
 import { useAuthStore } from "@/app/store/auth";
 import { signOut } from "@/shared/api/supabase/auth/auth";
+import Card from "@/shared/shadcn/components/ui/card/Card.vue";
+import CardDescription from "@/shared/shadcn/components/ui/card/CardDescription.vue";
+import CardHeader from "@/shared/shadcn/components/ui/card/CardHeader.vue";
+import CardTitle from "@/shared/shadcn/components/ui/card/CardTitle.vue";
+import Navbar from "@/shared/ui/Navbar.vue";
 import { ref } from "vue";
 
 const authStore = useAuthStore();

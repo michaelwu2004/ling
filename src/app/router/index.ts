@@ -6,6 +6,7 @@ import { nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../store/auth";
 import NotFoundPage from "@/pages/NotFoundPage.vue";
+import NewGamePage from "@/pages/game/NewGamePage.vue";
 
 class Routes {
   routes: any[];
@@ -58,10 +59,22 @@ const protectedRoutes = new Routes([
     path: "/game",
     component: GamePage,
     meta: {
-      title: "Login",
+      title: "Game",
       requireAuth: true, // Protect this route
     },
   },
+]);
+
+const gameRoutes = new Routes([
+  {
+    name: 'New Game',
+    path: '/new-game',
+    component: NewGamePage,
+    meta: {
+      title: "New Game",
+      requireAuth: true, // Protect this route
+    },
+  }
 ]);
 
 // const
@@ -81,6 +94,7 @@ const routes = [
       requireAuth: true,
     },
   },
+  ...gameRoutes.getRoutes(),
   ...authRoutes.addMetaData("requireGuest", true).getRoutes(),
   ...protectedRoutes.getRoutes(),
 ];
