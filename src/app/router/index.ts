@@ -3,6 +3,8 @@ import SignUpPage from "@/pages/auth/SignUpPage.vue";
 import DefaultPage from "@/pages/DefaultPage.vue";
 import { nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../store/auth";
+import NotFoundPage from "@/pages/NotFoundPage.vue";
 
 class Routes {
   routes: any[];
@@ -51,14 +53,22 @@ const authRoutes = new Routes(
 
 const routes = [
   {
+    name: 'Not Found',
+    path: '/:catchAll(.*)',
+    component: NotFoundPage,
+  },
+  {
     name: 'Default Page',
     path: '/',
     component: DefaultPage,
     meta: {
-      title: 'DefaultPage'
+      title: 'DefaultPage',
+      requireAuth: true
     }
   },
-  ...authRoutes.getRoutes()
+  ...authRoutes
+    .addMetaData('requireGuest', true)
+    .getRoutes()
 ];
 
 const router = createRouter({
@@ -72,6 +82,26 @@ router.afterEach((to) => {
       document.title = (to.meta.title as string) || "MISSING_TITLE"
     }
   });
+});
+
+router.beforeResolve(async (to, _from, next) => {
+  const authStore = useAuthStore();
+
+  if (to.matched.some(record => record.meta.requireAuth)) {
+    if (!authStore.isLoggedIn) {
+      next('/login');
+    } else {
+      next();
+    }
+  } else if (to.matched.some(record => record.meta.requireGuest)) {
+    if (authStore.isLoggedIn) {
+      next('/');
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

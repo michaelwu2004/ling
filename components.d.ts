@@ -8,11 +8,18 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     App: typeof import('./src/app/App.vue')['default']
+    Button: typeof import('./src/shared/shadcn/components/ui/button/Button.vue')['default']
     DefaultPage: typeof import('./src/pages/DefaultPage.vue')['default']
+    Input: typeof import('./src/shared/shadcn/components/ui/input/Input.vue')['default']
+    Label: typeof import('./src/shared/shadcn/components/ui/label/Label.vue')['default']
+    LoginAuthForm: typeof import('./src/widgets/auth/LoginAuthForm.vue')['default']
     LoginPage: typeof import('./src/pages/auth/LoginPage.vue')['default']
+    NotFound: typeof import('./src/pages/NotFound.vue')['default']
+    NotFoundPage: typeof import('./src/pages/NotFoundPage.vue')['default']
     RegisterPage: typeof import('./src/pages/auth/RegisterPage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SignUpAuthForm: typeof import('./src/widgets/auth/SignUpAuthForm.vue')['default']
     SignUpPage: typeof import('./src/pages/auth/SignUpPage.vue')['default']
   }
 }
