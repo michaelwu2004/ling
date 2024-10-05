@@ -6,53 +6,35 @@
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader>
-          <CardTitle>Card Title</CardTitle>
-          <CardDescription>Card Description</CardDescription>
+          <CardTitle>Play Ling</CardTitle>
+          <CardDescription>Pick you difficulty.</CardDescription>
         </CardHeader>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Card Title</CardTitle>
-          <CardDescription>Card Description</CardDescription>
-        </CardHeader>
+        <CardContent class="flex justify-between">
+          <Button class="bg-emerald-600 hover:bg-emerald-700" @click="() => playGame(0)">Easy</Button>
+          <Button class="bg-amber-600 hover:bg-amber-700" @click="() => playGame(1)">Medium</Button>
+          <Button class="bg-red-600 hover:bg-red-700" @click="() => playGame(2)">Hard</Button>
+        </CardContent>
       </Card>
     </div>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
       <Card class="col-span-4">
         <CardHeader>
-          <CardTitle>Overview</CardTitle>
+          <CardTitle>Extra Stuff 🚀</CardTitle>
         </CardHeader>
         <CardContent class="pl-2">
         </CardContent>
       </Card>
     </div>
   </div>
-  <!-- <div class="flex items-center justify-center min-h-screen bg-gray-100 p-8">
-    <div class="bg-white p-12 rounded-lg shadow-lg max-w-md w-full">
-      <h1 class="text-2xl font-bold mb-6 text-center">
-        Welcome to the Game Dashboard
-      </h1>
-      <div class="flex flex-col space-y-3">
-        <button
-          @click="playGame"
-          class="w-full bg-black hover:bg-blue-700 text-white font-bold py-3 px-4 rounded">
-          Play Game
-        </button>
-        <button
-          @click="logout"
-          class="w-full bg-black hover:bg-blue-700 text-white font-bold py-3 px-4 rounded">
-          Log Out
-        </button>
-      </div>
-    </div>
-  </div> -->
 </template>
 
 <script setup lang="ts">
 import router from "@/app/router";
 import { useAuthStore } from "@/app/store/auth";
 import { signOut } from "@/shared/api/supabase/auth/auth";
+import { Button } from "@/shared/shadcn/components/ui/button";
 import Card from "@/shared/shadcn/components/ui/card/Card.vue";
+import CardContent from "@/shared/shadcn/components/ui/card/CardContent.vue";
 import CardDescription from "@/shared/shadcn/components/ui/card/CardDescription.vue";
 import CardHeader from "@/shared/shadcn/components/ui/card/CardHeader.vue";
 import CardTitle from "@/shared/shadcn/components/ui/card/CardTitle.vue";
@@ -68,11 +50,12 @@ const logout = async () => {
   router.push("/login");
 };
 
-const playGame = () => {
+const playGame = (difficulty: number) => {
   // Placeholder for game logic
-  message.value = "Game Started! Have fun!";
+  // message.value = "Game Started! Have fun!";
   // You can replace this with actual game initiation code
-  router.push("/game");
+  
+  router.push("/new-game");
 };
 </script>
 
