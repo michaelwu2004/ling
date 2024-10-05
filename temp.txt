@@ -1,0 +1,67 @@
+// Initialize the game with source word and target leaf node word
+async function initializeGame() {
+  currentWord.value = await findValidStartingWord(); // Find a valid starting word with at least 2 synonyms and 2 antonyms
+  // const leafNode = await findLeafNode(currentWord.value); // Find a suitable target leaf node
+  // targetWord.value = leafNode;
+  await fetchAndSetWordDetails(currentWord.value);
+}
+
+/**
+ * Fetch synonyms and antonyms for the current word and set them in the UI.
+ * @param word The word to fetch details for.
+ */
+async function fetchAndSetWordDetails(word: string) {
+  const { synonyms: syns, antonyms: ants } = await fetchWordDetails(word);
+  synonyms.value = syns;
+  antonyms.value = ants;
+}
+
+// Handle user moves
+async function makeMove(newWord: string) {
+  if (movesRemaining.value > 0 && !gameWon.value) {
+    currentWord.value = newWord;
+    movesRemaining.value--;
+
+    if (currentWord.value === targetWord.value) {
+      gameWon.value = true;
+    } else if (movesRemaining.value > 0) {
+      await fetchAndSetWordDetails(currentWord.value);
+    }
+  }
+}
+
+
+ <Card class="bg-black text-white">
+        <CardHeader class="font-bold text-xl-3">
+          <CardTitle>Navigate</CardTitle>
+        </CardHeader>
+        <div class="flex flex-row space-x-4 p-3">
+          <!-- Synonyms -->
+          <Card class="bg-black text-white flex-1">
+            <CardHeader class="font-bold">Synonyms</CardHeader>
+            <div class="mt-2 flex flex-wrap gap-2 m-3">
+              <button
+                v-for="(synonym, index) in synonyms"
+                :key="index"
+                class="inline-block bg-blue-500 text-white px-2 py-1 rounded-full"
+                @click="makeMove(synonym)">
+                {{ synonym }}
+              </button>
+            </div>
+          </Card>
+
+          <!-- Antonyms -->
+          <Card class="bg-black text-white flex-1">
+            <CardHeader class="font-bold">Antonyms</CardHeader>
+            <div class="mt-2 flex flex-wrap gap-2 m-3">
+              <button
+                v-for="(antonym, index) in antonyms"
+                :key="index"
+                class="inline-block bg-red-500 text-white px-2 py-1 rounded-full"
+                @click="makeMove(antonym)">
+                {{ antonym }}
+              </button>
+            </div>
+          </Card>
+        </div>
+      </Card>
