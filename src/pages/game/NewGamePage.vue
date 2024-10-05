@@ -260,12 +260,12 @@ async function onWordClicked(newWord: string) {
     gameWon.value = true;
   } else {
     // Update synonyms and antonyms for the new word
-    const { synonyms, antonyms } = await fetchWordDetails(word.value);
+    // const { synonyms, antonyms } = await fetchWordDetails(word.value);
     definitions.value = stringArrToTDefinition(graph[word.value].definitions);
     // console.log(graph[word.value].goodWords);
     specialWords.value = graph[word.value].goodWords;
-    synonyms.value = synonyms;
-    antonyms.value = antonyms;
+    synonyms.value = graph[word.value].synonyms;
+    antonyms.value = graph[word.value].antonyms;
   }
 }
 
