@@ -48,26 +48,6 @@
 import { buttonVariants } from "@/shared/shadcn/components/ui/button";
 import { cn } from "@/shared/shadcn/lib/utils";
 import LoginAuthForm from "@/widgets/auth/LoginAuthForm.vue";
-import { Ref, ref } from "vue";
-import { words } from "@/shared/constants/words";
-
-type WordDefinition = {
-  word: string;
-  definitions: string[];
-};
-
-type Quote = {
-  text: string;
-  author: string;
-};
-
-// Learning quotes
-const quotes: Ref<Quote[]> = ref([
-  {
-    text: "The beautiful thing about learning is that no one can take it away from you.",
-    author: "B.B. King",
-  },
-]);
 </script>
 
 <style lang="scss" scoped>

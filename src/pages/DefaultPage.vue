@@ -24,7 +24,6 @@ import router from "@/app/router";
 import { Button } from "@/shared/shadcn/components/ui/button";
 import Card from "@/shared/shadcn/components/ui/card/Card.vue";
 import CardContent from "@/shared/shadcn/components/ui/card/CardContent.vue";
-import CardDescription from "@/shared/shadcn/components/ui/card/CardDescription.vue";
 import CardHeader from "@/shared/shadcn/components/ui/card/CardHeader.vue";
 import CardTitle from "@/shared/shadcn/components/ui/card/CardTitle.vue";
 import Navbar from "@/shared/ui/Navbar.vue";
