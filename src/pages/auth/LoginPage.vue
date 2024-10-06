@@ -14,21 +14,19 @@
     <div
       class="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
       <div class="absolute inset-0 bg-zinc-900" />
-      <div class="relative z-20 flex items-center text-lg font-medium">
-        Ling
-      </div>
-      <div class="relative z-20 mt-auto">
-        <div class="quotes-container">
-          <div
-            class="quote-item"
-            v-for="(quote, index) in quotes"
-            :key="index"
-            :class="{}">
-            <blockquote class="space-y-2 mt-4">
-              <p class="text-lg">&ldquo;{{ quote.text }}&rdquo;</p>
-              <footer class="text-sm">{{ quote.author }}</footer>
-            </blockquote>
-          </div>
+      <div
+        class="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
+        <div class="absolute inset-0 bg-zinc-900" />
+        <div class="relative z-20 flex items-center text-lg font-medium">
+          Ling
+        </div>
+        <div class="relative z-20 mt-auto">
+          <blockquote class="space-y-2">
+            <p class="text-lg">
+              &ldquo;Question everything. Learn something. Answer nothing&rdquo;
+            </p>
+            <footer class="text-sm">Euripedes</footer>
+          </blockquote>
         </div>
       </div>
     </div>

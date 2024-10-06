@@ -1,14 +1,58 @@
 <template>
+  <div 
+    :class="{'absolute w-full z-50 h-screen bg-white flex justify-center items-center opacity-100 pointer-events-none' : true, 'self-fade-out': !isLoading }"
+  >
+    <div class="flex flex-col items-center">
+      <LoaderCircle class="mr-2 h-10 w-10 animate-spin" />
+      <div>Working on making your game...</div>
+    </div>
+  </div>
   <div class="w-full h-screen flex justify-center">
-    <div class="w-8/12">
-      <!-- Card for Target Word -->
-      <!-- <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Target Word Info</h2>
-        <p class="text-gray-600 font-bold">
-          Target Word: <span class="text-blue-600">{{ targetWord }}</span>
-        </p>
-      </div> -->
+    <AlertDialog :open="gameWon">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Your Score</AlertDialogTitle>
+          <AlertDialogDescription>
+            <div>
+              <h1 class="mr-2">{{ formattedTime }}</h1>
+            </div>
 
+            <div class="mt-2">
+              {{ moves }}
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogAction @click="reloadGame">Play again</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    <AlertDialog :open="openHow">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>How To Play</AlertDialogTitle>
+
+          <AlertDialogDescription>
+            <div>
+              Given a source word and target word, your goal is to get from source word to target word.
+              As you form your path of words, words that are colored in red, synonyms, and antonyms are nodes
+              to extend the path until you reach the target word.
+            </div>
+
+            <div class="mt-2">
+              Some words may not have antonyms and synonyms; indicating that your path is done and you
+              should go to previous words using the undo button.
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogAction @click="triggerHow">Got It!</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    <div class="w-8/12">
       <Button
         variant="destructive"
         class="absolute bottom-8 left-8"
@@ -20,21 +64,15 @@
         <h2 class="text-3xl font-bold tracking-tight text-center">
           {{ getTargetWord }}
         </h2>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="ghost"
-                @click="goBack"
-                :disabled="wordStack.length <= 0">
-                <Undo class="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Go back to last word</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div class="flex items-center">
+          <h1 class="mr-2">{{ formattedTime }}</h1>
+          <Button
+            variant="ghost"
+            @click="goBack"
+            :disabled="wordStack.length <= 0">
+            <Undo class="size-4" />
+          </Button>
+        </div>
       </div>
 
       <!-- Tabs Section for Source Word -->
@@ -74,14 +112,19 @@ import TabsTrigger from "@/shared/shadcn/components/ui/tabs/TabsTrigger.vue";
 import { TDefinition } from "@/shared/types/word";
 import DefinitionText from "@/widgets/game/DefinitionText.vue";
 import WordContainer from "@/widgets/game/WordContainer.vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { syllable } from "syllable";
 import Button from "@/shared/shadcn/components/ui/button/Button.vue";
 import { fetchWordDetails, findValidStartingWord } from "@/shared/api/words";
 import router from "@/app/router";
-import { Undo, Goal } from "lucide-vue-next";
-import TooltipProvider from "@/shared/shadcn/components/ui/tooltip/TooltipProvider.vue";
-import Tooltip from "@/shared/shadcn/components/ui/tooltip/Tooltip.vue";
+import { Undo, Goal, LoaderCircle } from "lucide-vue-next";
+import AlertDialog from "@/shared/shadcn/components/ui/alert-dialog/AlertDialog.vue";
+import AlertDialogContent from "@/shared/shadcn/components/ui/alert-dialog/AlertDialogContent.vue";
+import AlertDialogTitle from "@/shared/shadcn/components/ui/alert-dialog/AlertDialogTitle.vue";
+import AlertDialogHeader from "@/shared/shadcn/components/ui/alert-dialog/AlertDialogHeader.vue";
+import AlertDialogDescription from "@/shared/shadcn/components/ui/alert-dialog/AlertDialogDescription.vue";
+import { AlertDialogFooter } from "@/shared/shadcn/components/ui/alert-dialog";
+import AlertDialogAction from "@/shared/shadcn/components/ui/alert-dialog/AlertDialogAction.vue";
 
 interface Node {
   word: string;
@@ -95,7 +138,22 @@ interface Graph {
   [key: string]: Node;
 }
 
+const secondsElapsed = ref<number>(0);
+const moves = ref<number>(0);
+let timerInterval: NodeJS.Timeout | null = null;
+
+const reloadGame = () => {
+  window.location.reload();
+}
+
+const openHow = ref<boolean>(false);
+const triggerHow = () => {
+  openHow.value = false;
+  localStorage.setItem('read-how', 'true');
+}
+
 const wordStack: string[] = [];
+const isLoading = ref<boolean>(true);
 
 const graph: Graph = {};
 const leafNodes: string[] = [];
@@ -284,6 +342,14 @@ function retrieveLeafNodes(word: string, visited: Set<string>) {
   }
 }
 
+const formattedTime = computed(() => {
+  const minutes = Math.floor(secondsElapsed.value / 60)
+  const seconds = secondsElapsed.value % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds
+    .toString()
+    .padStart(2, '0')}`
+});
+
 // Initialize the game with source word and target leaf node word
 async function initializeGame() {
   word.value = await findValidStartingWord(); // Find a valid starting word with at least 2 synonyms and 2 antonyms
@@ -304,10 +370,12 @@ async function initializeGame() {
 async function onWordClicked(newWord: string) {
   wordStack.push(word.value);
   word.value = newWord;
+  moves.value = moves.value + 1;
   // console.log(graph[word.value].goodWords);
   // If the user has reached the target word
   if (word.value === targetWord.value) {
     gameWon.value = true;
+    stopInterval();
   } else {
     // Update synonyms and antonyms for the new word
     // const { synonyms, antonyms } = await fetchWordDetails(word.value);
@@ -323,9 +391,23 @@ function goHome() {
   router.push("/");
 }
 
+const stopInterval = () => {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+}
+
 onMounted(async () => {
+  const read = localStorage.getItem('read-how');
+
+  if (!read) {
+    openHow.value = true;
+  }
+
   // initializing stuff
   await initializeGame();
+  isLoading.value = false;
+  
   const { synonyms, antonyms } = await fetchWordDetails(word.value);
   definitions.value = stringArrToTDefinition(graph[word.value].definitions);
 
@@ -334,7 +416,42 @@ onMounted(async () => {
   specialWords.value = graph[word.value].goodWords;
   synonyms.value = graph[word.value].synonyms;
   antonyms.value = graph[word.value].antonyms;
+
+  timerInterval = setInterval(() => {
+    secondsElapsed.value++
+  }, 1000);
+
+});
+
+onUnmounted(() => {
+  stopInterval();
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.fade-in {
+  animation: fadeIn 2s ease-in;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.self-fade-out {
+  animation: fadeOut 2s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+</style>

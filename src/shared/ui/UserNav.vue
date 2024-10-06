@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { AvatarFallback, AvatarRoot } from "radix-vue";
+import { AvatarFallback, AvatarImage, AvatarRoot } from "radix-vue";
 import Button from "../shadcn/components/ui/button/Button.vue";
 import DropdownMenu from "../shadcn/components/ui/dropdown-menu/DropdownMenu.vue";
 import DropdownMenuContent from "../shadcn/components/ui/dropdown-menu/DropdownMenuContent.vue";
