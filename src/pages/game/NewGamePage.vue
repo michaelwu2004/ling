@@ -1,25 +1,51 @@
 <template>
   <div class="w-full h-screen flex justify-center">
     <div class="w-8/12">
-      <Button class="my-4" @click="goHome"> <- Home </Button>
-
       <!-- Card for Target Word -->
-      <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+      <!-- <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">Target Word Info</h2>
         <p class="text-gray-600 font-bold">
           Target Word: <span class="text-blue-600">{{ targetWord }}</span>
         </p>
+      </div> -->
+
+      <Button
+        variant="destructive"
+        class="absolute bottom-8 left-8"
+        @click="goHome">
+        End Game
+      </Button>
+      <div class="flex items-center justify-between mt-10">
+        <Goal class="size-6 align-middle" />
+        <h2 class="text-3xl font-bold tracking-tight text-center">
+          {{ getTargetWord }}
+        </h2>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="ghost"
+                @click="goBack"
+                :disabled="wordStack.length <= 0">
+                <Undo class="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Go back to last word</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <!-- Tabs Section for Source Word -->
-      <Tabs default-value="definition" class="relative">
+      <Tabs default-value="definition" class="relative mt-2">
         <TabsList>
           <TabsTrigger value="definition"> Definition </TabsTrigger>
           <TabsTrigger value="synonyms"> Synonyms </TabsTrigger>
           <TabsTrigger value="antonyms"> Antonyms </TabsTrigger>
         </TabsList>
         <TabsContent value="definition">
-          <h1 class="text-3xl">{{ word }}</h1>
+          <h1 class="text-3xl">{{ getCurrentWord }}</h1>
           <DefinitionText
             v-for="def in definitions"
             :key="def.content"
@@ -48,11 +74,14 @@ import TabsTrigger from "@/shared/shadcn/components/ui/tabs/TabsTrigger.vue";
 import { TDefinition } from "@/shared/types/word";
 import DefinitionText from "@/widgets/game/DefinitionText.vue";
 import WordContainer from "@/widgets/game/WordContainer.vue";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { syllable } from "syllable";
 import Button from "@/shared/shadcn/components/ui/button/Button.vue";
 import { fetchWordDetails, findValidStartingWord } from "@/shared/api/words";
 import router from "@/app/router";
+import { Undo, Goal } from "lucide-vue-next";
+import TooltipProvider from "@/shared/shadcn/components/ui/tooltip/TooltipProvider.vue";
+import Tooltip from "@/shared/shadcn/components/ui/tooltip/Tooltip.vue";
 
 interface Node {
   word: string;
@@ -66,6 +95,8 @@ interface Graph {
   [key: string]: Node;
 }
 
+const wordStack: string[] = [];
+
 const graph: Graph = {};
 const leafNodes: string[] = [];
 
@@ -73,26 +104,39 @@ const word = ref<string>("");
 const targetWord = ref("");
 const gameWon = ref(false);
 
-const definitions = ref<TDefinition[]>([
-  // {
-  //   type: "n",
-  //   content:
-  //     "a scene or sequence of sound or vision photographed or recorded continuously at one time.",
-  // },
-  // {
-  //   type: "v",
-  //   content: "lay hold of (something) with one's hands; reach for and hold.",
-  // },
-  // {
-  //   type: "v",
-  //   content: "remove (someone or something) from a particular place",
-  // },
-]);
-
+const definitions = ref<TDefinition[]>([]);
 const synonyms = ref<string[]>([]);
 const antonyms = ref<string[]>([]);
 
 const specialWords = ref<string[]>([]);
+
+const goBack = () => {
+  if (wordStack.length > 0) {
+    word.value = wordStack.pop()!;
+    console.log(word.value);
+    definitions.value = stringArrToTDefinition(graph[word.value].definitions);
+    specialWords.value = graph[word.value].goodWords;
+    synonyms.value = graph[word.value].synonyms;
+    antonyms.value = graph[word.value].antonyms;
+  }
+};
+
+function filterAZCharacters(input: string): string {
+  return input
+    .split("")
+    .filter(
+      (char) => (char >= "a" && char <= "z") || (char >= "A" && char <= "Z")
+    )
+    .join("");
+}
+
+const getCurrentWord = computed(() => {
+  return filterAZCharacters(word.value);
+});
+
+const getTargetWord = computed(() => {
+  return filterAZCharacters(targetWord.value);
+});
 
 function stringArrToTDefinition(arr: string[]): TDefinition[] {
   const res: TDefinition[] = [];
@@ -258,6 +302,7 @@ async function initializeGame() {
 
 // Handle user moves
 async function onWordClicked(newWord: string) {
+  wordStack.push(word.value);
   word.value = newWord;
   // console.log(graph[word.value].goodWords);
   // If the user has reached the target word
@@ -284,7 +329,6 @@ onMounted(async () => {
   const { synonyms, antonyms } = await fetchWordDetails(word.value);
   definitions.value = stringArrToTDefinition(graph[word.value].definitions);
 
-  console.log("SDbjNJSBNDKANSJDNAKSNJ");
   // console.log(graph[word.value].goodWords);
 
   specialWords.value = graph[word.value].goodWords;
