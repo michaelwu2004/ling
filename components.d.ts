@@ -47,6 +47,10 @@ declare module 'vue' {
     TabsContent: typeof import('./src/shared/shadcn/components/ui/tabs/TabsContent.vue')['default']
     TabsList: typeof import('./src/shared/shadcn/components/ui/tabs/TabsList.vue')['default']
     TabsTrigger: typeof import('./src/shared/shadcn/components/ui/tabs/TabsTrigger.vue')['default']
+    Tooltip: typeof import('./src/shared/shadcn/components/ui/tooltip/Tooltip.vue')['default']
+    TooltipContent: typeof import('./src/shared/shadcn/components/ui/tooltip/TooltipContent.vue')['default']
+    TooltipProvider: typeof import('./src/shared/shadcn/components/ui/tooltip/TooltipProvider.vue')['default']
+    TooltipTrigger: typeof import('./src/shared/shadcn/components/ui/tooltip/TooltipTrigger.vue')['default']
     UserNav: typeof import('./src/shared/ui/UserNav.vue')['default']
     WordContainer: typeof import('./src/widgets/game/WordContainer.vue')['default']
   }
