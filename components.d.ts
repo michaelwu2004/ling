@@ -7,6 +7,15 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AlertDialog: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialog.vue')['default']
+    AlertDialogAction: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogAction.vue')['default']
+    AlertDialogCancel: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogCancel.vue')['default']
+    AlertDialogContent: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogContent.vue')['default']
+    AlertDialogDescription: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogDescription.vue')['default']
+    AlertDialogFooter: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogFooter.vue')['default']
+    AlertDialogHeader: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogHeader.vue')['default']
+    AlertDialogTitle: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogTitle.vue')['default']
+    AlertDialogTrigger: typeof import('./src/shared/shadcn/components/ui/alert-dialog/AlertDialogTrigger.vue')['default']
     App: typeof import('./src/app/App.vue')['default']
     Button: typeof import('./src/shared/shadcn/components/ui/button/Button.vue')['default']
     Card: typeof import('./src/shared/shadcn/components/ui/card/Card.vue')['default']
@@ -15,6 +24,11 @@ declare module 'vue' {
     CardFooter: typeof import('./src/shared/shadcn/components/ui/card/CardFooter.vue')['default']
     CardHeader: typeof import('./src/shared/shadcn/components/ui/card/CardHeader.vue')['default']
     CardTitle: typeof import('./src/shared/shadcn/components/ui/card/CardTitle.vue')['default']
+    Carousel: typeof import('./src/shared/shadcn/components/ui/carousel/Carousel.vue')['default']
+    CarouselContent: typeof import('./src/shared/shadcn/components/ui/carousel/CarouselContent.vue')['default']
+    CarouselItem: typeof import('./src/shared/shadcn/components/ui/carousel/CarouselItem.vue')['default']
+    CarouselNext: typeof import('./src/shared/shadcn/components/ui/carousel/CarouselNext.vue')['default']
+    CarouselPrevious: typeof import('./src/shared/shadcn/components/ui/carousel/CarouselPrevious.vue')['default']
     DefaultPage: typeof import('./src/pages/DefaultPage.vue')['default']
     DefinitionText: typeof import('./src/widgets/game/DefinitionText.vue')['default']
     DropdownMenu: typeof import('./src/shared/shadcn/components/ui/dropdown-menu/DropdownMenu.vue')['default']

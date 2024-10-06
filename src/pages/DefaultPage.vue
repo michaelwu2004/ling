@@ -12,15 +12,7 @@
           <Button
             class="bg-emerald-600 hover:bg-emerald-700"
             @click="() => playGame()"
-            >Easy</Button
-          >
-          <Button
-            class="bg-amber-600 hover:bg-amber-700"
-            @click="() => playGame()"
-            >Medium</Button
-          >
-          <Button class="bg-red-600 hover:bg-red-700" @click="() => playGame()"
-            >Hard</Button
+            >Play Game</Button
           >
         </CardContent>
       </Card>
@@ -28,9 +20,11 @@
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
       <Card class="col-span-4">
         <CardHeader>
-          <CardTitle>Extra Stuff 🚀</CardTitle>
+          <CardTitle>Last Seen Words</CardTitle>
         </CardHeader>
-        <CardContent class="pl-2"> </CardContent>
+        <CardContent class="pl-2">
+          
+        </CardContent>
       </Card>
     </div>
   </div>
