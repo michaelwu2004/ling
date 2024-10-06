@@ -1,6 +1,5 @@
 <template>
-  <Navbar>
-  </Navbar>
+  <Navbar> </Navbar>
 
   <div class="w-full h-full space-y-4 px-5 mt-5">
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -10,9 +9,19 @@
           <CardDescription>Pick you difficulty.</CardDescription>
         </CardHeader>
         <CardContent class="flex justify-between">
-          <Button class="bg-emerald-600 hover:bg-emerald-700" @click="() => playGame(0)">Easy</Button>
-          <Button class="bg-amber-600 hover:bg-amber-700" @click="() => playGame(1)">Medium</Button>
-          <Button class="bg-red-600 hover:bg-red-700" @click="() => playGame(2)">Hard</Button>
+          <Button
+            class="bg-emerald-600 hover:bg-emerald-700"
+            @click="() => playGame()"
+            >Easy</Button
+          >
+          <Button
+            class="bg-amber-600 hover:bg-amber-700"
+            @click="() => playGame()"
+            >Medium</Button
+          >
+          <Button class="bg-red-600 hover:bg-red-700" @click="() => playGame()"
+            >Hard</Button
+          >
         </CardContent>
       </Card>
     </div>
@@ -21,8 +30,7 @@
         <CardHeader>
           <CardTitle>Extra Stuff 🚀</CardTitle>
         </CardHeader>
-        <CardContent class="pl-2">
-        </CardContent>
+        <CardContent class="pl-2"> </CardContent>
       </Card>
     </div>
   </div>
@@ -30,8 +38,6 @@
 
 <script setup lang="ts">
 import router from "@/app/router";
-import { useAuthStore } from "@/app/store/auth";
-import { signOut } from "@/shared/api/supabase/auth/auth";
 import { Button } from "@/shared/shadcn/components/ui/button";
 import Card from "@/shared/shadcn/components/ui/card/Card.vue";
 import CardContent from "@/shared/shadcn/components/ui/card/CardContent.vue";
@@ -39,22 +45,12 @@ import CardDescription from "@/shared/shadcn/components/ui/card/CardDescription.
 import CardHeader from "@/shared/shadcn/components/ui/card/CardHeader.vue";
 import CardTitle from "@/shared/shadcn/components/ui/card/CardTitle.vue";
 import Navbar from "@/shared/ui/Navbar.vue";
-import { ref } from "vue";
 
-const authStore = useAuthStore();
-const message = ref("");
-
-const logout = async () => {
-  authStore.clearUser();
-  await signOut();
-  router.push("/login");
-};
-
-const playGame = (difficulty: number) => {
+const playGame = () => {
   // Placeholder for game logic
   // message.value = "Game Started! Have fun!";
   // You can replace this with actual game initiation code
-  
+
   router.push("/new-game");
 };
 </script>

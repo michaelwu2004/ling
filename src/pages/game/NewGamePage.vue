@@ -109,6 +109,10 @@ function stringArrToTDefinition(arr: string[]): TDefinition[] {
   return res;
 }
 
+function cleanWord(word: string): string {
+  return word.replace(/[{}()\[\],.]/g, "").trim();
+}
+
 async function constructGraph(word: string, depth: number) {
   try {
     // Return if max depth is reached or word already in the graph
@@ -129,10 +133,11 @@ async function constructGraph(word: string, depth: number) {
       const words = cleanedDefinition.split(/\s+/);
 
       for (const word of words) {
-        if (word.length > 1) {
+        const cleanedWord = cleanWord(word);
+        if (cleanedWord.length > 1) {
           // Exclude single-character words if needed
-          const syllables = syllable(word.toLowerCase()); // Convert word to lowercase
-          syllableCounts.push([syllables, word]);
+          const syllables = syllable(cleanedWord.toLowerCase()); // Convert word to lowercase
+          syllableCounts.push([syllables, cleanedWord]);
         }
       }
     }
@@ -193,7 +198,7 @@ async function constructGraph(word: string, depth: number) {
  * @param word The start word to find the leaf nodes of
  * @param visited A set tracking the words we have seen already
  */
-function retrieveLeafNodes(word: string, visited: Set<string>, type: string) {
+function retrieveLeafNodes(word: string, visited: Set<string>) {
   // Mark the current word as visited
   if (visited.has(word)) {
     return;
@@ -218,19 +223,19 @@ function retrieveLeafNodes(word: string, visited: Set<string>, type: string) {
 
   for (const antonym of currNode.antonyms) {
     if (!visited.has(antonym)) {
-      retrieveLeafNodes(antonym, visited, "antonym");
+      retrieveLeafNodes(antonym, visited);
     }
   }
 
   for (const synonym of currNode.synonyms) {
     if (!visited.has(synonym)) {
-      retrieveLeafNodes(synonym, visited, "synonym");
+      retrieveLeafNodes(synonym, visited);
     }
   }
 
   for (const goodWord of currNode.goodWords) {
     if (!visited.has(goodWord)) {
-      retrieveLeafNodes(goodWord, visited, "goodWord");
+      retrieveLeafNodes(goodWord, visited);
     }
   }
 }
@@ -242,7 +247,7 @@ async function initializeGame() {
   definitions.value = stringArrToTDefinition(graph[word.value].definitions);
   // console.log(graph[word.value].definitions, definitions.value);
   const visited = new Set<string>();
-  retrieveLeafNodes(word.value, visited, "curr");
+  retrieveLeafNodes(word.value, visited);
   const randomIndex = Math.floor(Math.random() * leafNodes.length);
   targetWord.value = leafNodes[randomIndex];
   specialWords.value = graph[word.value].goodWords;
@@ -283,8 +288,8 @@ onMounted(async () => {
   // console.log(graph[word.value].goodWords);
 
   specialWords.value = graph[word.value].goodWords;
-  synonyms.value = synonyms;
-  antonyms.value = antonyms;
+  synonyms.value = graph[word.value].synonyms;
+  antonyms.value = graph[word.value].antonyms;
 });
 </script>
 

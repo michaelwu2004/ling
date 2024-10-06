@@ -30,19 +30,18 @@
 </template>
 
 <script setup lang="ts">
-import { AvatarFallback, AvatarRoot } from 'radix-vue';
-import Button from '../shadcn/components/ui/button/Button.vue';
-import DropdownMenu from '../shadcn/components/ui/dropdown-menu/DropdownMenu.vue';
-import DropdownMenuContent from '../shadcn/components/ui/dropdown-menu/DropdownMenuContent.vue';
-import DropdownMenuTrigger from '../shadcn/components/ui/dropdown-menu/DropdownMenuTrigger.vue';
-import DropdownMenuLabel from '../shadcn/components/ui/dropdown-menu/DropdownMenuLabel.vue';
-import DropdownMenuSeparator from '../shadcn/components/ui/dropdown-menu/DropdownMenuSeparator.vue';
-import DropdownMenuGroup from '../shadcn/components/ui/dropdown-menu/DropdownMenuGroup.vue';
-import DropdownMenuItem from '../shadcn/components/ui/dropdown-menu/DropdownMenuItem.vue';
-import { useAuthStore } from '@/app/store/auth';
-import { computed } from 'vue';
-import { signOut } from '../api/supabase/auth/auth';
-import router from '@/app/router';
+import { AvatarFallback, AvatarRoot } from "radix-vue";
+import Button from "../shadcn/components/ui/button/Button.vue";
+import DropdownMenu from "../shadcn/components/ui/dropdown-menu/DropdownMenu.vue";
+import DropdownMenuContent from "../shadcn/components/ui/dropdown-menu/DropdownMenuContent.vue";
+import DropdownMenuTrigger from "../shadcn/components/ui/dropdown-menu/DropdownMenuTrigger.vue";
+import DropdownMenuLabel from "../shadcn/components/ui/dropdown-menu/DropdownMenuLabel.vue";
+import DropdownMenuSeparator from "../shadcn/components/ui/dropdown-menu/DropdownMenuSeparator.vue";
+import DropdownMenuItem from "../shadcn/components/ui/dropdown-menu/DropdownMenuItem.vue";
+import { useAuthStore } from "@/app/store/auth";
+import { computed } from "vue";
+import { signOut } from "../api/supabase/auth/auth";
+import router from "@/app/router";
 
 const authStore = useAuthStore();
 
@@ -57,7 +56,7 @@ const getEmail = computed(() => {
 const getInitials = computed(() => {
   const username = authStore.getAdditionalUserInfo?.username;
   if (!username) return "M";
-  return username?.length > 0 ? `${username[0]}` : "M"
+  return username?.length > 0 ? `${username[0]}` : "M";
 });
 
 const logout = async () => {
@@ -67,6 +66,4 @@ const logout = async () => {
 };
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
